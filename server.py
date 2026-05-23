@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import yfinance as yf
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +17,7 @@ def get_market_cap_category(market_cap_cr):
 def stock():
     symbol = request.args.get("symbol", "").strip()
     if not symbol:
-        return jsonify({"success": False, "error": "Please provide a stock symbol"}), 400
+        return jsonify({"success": False, "error": "No symbol"})
     if not symbol.endswith(".NS") and not symbol.endswith(".BO"):
         symbol = symbol.upper() + ".NS"
     try:
@@ -30,7 +29,7 @@ def stock():
             "sector": info.get("sector", "N/A"),
             "industry": info.get("industry", "N/A"),
             "market_cap_cr": round((info.get("marketCap") or 0) / 1e7, 2),
-            "current_price": info.get("currentPrice") or info.get("regularMarketPrice") or 0,
+            "current_price": info.get("currentPrice") or 0,
             "face_value": info.get("faceValue") or 1,
             "pe_ratio": round(info.get("trailingPE") or 0, 2),
             "forward_pe": round(info.get("forwardPE") or 0, 2),
@@ -67,4 +66,3 @@ def health():
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Your Personal Stock Analysis API"})
-
